@@ -1,0 +1,50 @@
+// FILE: Queue.template
+// TEMPLATE CLASS IMPLEMENTED: Queue<Item>
+// This file is included in the header file and not complied separately.
+// 1. The number of items in the queue is in the member variable count.
+// 2. For a non-empy queue, the items are stored in a circular array beginning at
+// 	  data[first] and continuing through data[last]. The total capacity of the 
+// 	  array is CAPACITY.
+// 3. For an empty array, last is some valid index, and first is always equal to
+// 	  next_index(last).
+
+#include <cassert>
+
+namespace ntcage_main_1
+{
+    //template <typename Item>
+	//const typename Queue<Item>::size_type Queue<Item>::CAPACITY;
+	
+	template <typename Item>
+	Queue<Item>::Queue()
+	{
+		count = 0;
+		first = 0;
+		last = CAPACITY-1;
+
+	}
+
+	template <typename Item>
+	Item Queue<Item>::front() const
+	{
+		assert(!empty());
+		return data[first];
+	}
+
+	template <typename Item>
+	void Queue<Item>::pop()
+	{
+		assert(!empty());
+		first = next_index(first);
+		--count;
+	}
+
+	template <typename Item>
+	void Queue<Item>::push(const Item& entry)
+	{
+		assert(size() < CAPACITY);
+		last = next_index(last);
+		data[last] = entry;
+		++count;
+	}
+}

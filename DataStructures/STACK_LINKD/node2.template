@@ -1,0 +1,136 @@
+//  FILE: dbl_node.template
+//  IMPLEMENTS: The function of the dbl_node template class
+//
+//  NOTE:
+// 		Since dbl_node is a template class, this file is included in dbl_nodeT.h
+// 		Therefore, we should not put any using directives in this files.
+//
+//  INVARIANT for the class:
+// 		The data of a dbl_node is stored in , and the next in next.
+
+
+#include <iostream>
+#include <cassert>
+#include <cstdlib>
+
+using namespace std; 
+
+
+namespace ntcage_main_1
+
+{
+	template <class Item>
+	std::size_t list_length(const dbl_node<Item>* head_ptr)
+	{
+		const dbl_node<Item> *cursor;
+		size_t answer;
+
+		answer = 0;
+		for(cursor = head_ptr; cursor != NULL; cursor = cursor->next())
+			++answer;
+		return answer;
+
+	}
+
+	template <class Item>
+	void list_head_insert(dbl_node<Item>*& head_ptr, const Item& entry)
+	{
+		head_ptr = new dbl_node<Item>(entry, head_ptr);
+	}
+	
+	template <class Item>
+	void list_insert(dbl_node<Item>* previous_ptr, const Item& entry)
+	{
+		dbl_node<Item> *insert_ptr;
+		insert_ptr = new dbl_node<Item>;
+		insert_ptr->set_data(entry);
+		insert_ptr->set_next(previous_ptr->next());
+		previous_ptr->set_next(insert_ptr);
+
+	}
+	
+	template <class NodePtr, class Item>
+	NodePtr list_search(NodePtr head_ptr, const Item& target)
+	{
+		NodePtr cursor;
+		for (cursor = head_ptr; cursor != NULL; cursor = cursor->next())
+			if (target == cursor->data())
+				return cursor;
+		return NULL;
+
+	}
+	
+	template <class Item>
+	void list_copy(const dbl_node<Item>* source_ptr, dbl_node<Item>*& head_ptr, dbl_node<Item>*& tail_ptr)
+	{
+		head_ptr = NULL;
+		tail_ptr = NULL;
+
+		// Handle the case of the empty list.
+		if (source_ptr == NULL)
+			return;
+
+		// Make the head dbl_node for the newly created list, and put data in it.
+		list_head_insert(head_ptr, source_ptr->data());
+		tail_ptr = head_ptr;
+
+		// Copy the rest of the dbl_nodes one at a time, adding at the tail of new list.
+		source_ptr = source_ptr->next();
+		while (source_ptr != NULL)
+		{
+			 list_insert(tail_ptr, source_ptr->data());
+			 tail_ptr = tail_ptr->next();
+			 source_ptr = source_ptr->next();
+		}
+	}
+	
+	template <class NodePtr, class SizeType>
+	NodePtr list_locate(NodePtr head_ptr, SizeType position)
+	{
+		NodePtr cursor;
+		std::size_t i;
+
+		assert(0 < position);
+		cursor = head_ptr;
+		for (i = 1; (i < position) && (cursor != NULL); i++) 
+		{
+			cursor = cursor->next();
+		}
+		return cursor;
+	}
+	
+	template <class Item>
+	void list_head_remove(dbl_node<Item>*& head_ptr)
+	{
+		dbl_node<Item> *remove_ptr;
+		remove_ptr = head_ptr;
+		head_ptr = head_ptr->next();
+		delete remove_ptr;
+
+	}
+	
+	template <class Item>
+	void list_remove(dbl_node<Item>* previous_ptr)
+	{
+		dbl_node<Item> *remove_ptr;
+		remove_ptr = previous_ptr->next();
+		previous_ptr->set_next(remove_ptr->next());
+		delete remove_ptr;
+
+	}
+	
+	template <class Item>
+	void list_clear(dbl_node<Item>*& head_ptr)
+	{
+		while (head_ptr != NULL)
+			list_head_remove(head_ptr);
+
+	}
+
+
+
+}
+
+
+
+

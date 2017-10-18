@@ -1,0 +1,25 @@
+// FILE: Stack.template
+
+#include <cassert>
+
+namespace ntcage_main_1
+{
+	template <typename T>
+	const typename Stack<T>::size_type Stack<T>::CAPACITY;
+
+	template <typename T>
+	void Stack<T>::push(const T& entry)
+	{
+		assert(size() < CAPACITY);
+		data[used] = entry;
+		++used;
+	}
+
+	template <typename T>
+	void Stack<T>::pop()
+	{
+		assert(used > 0);
+		--used;
+	}
+
+}

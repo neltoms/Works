@@ -1,0 +1,252 @@
+// FILE: LinkedSeq.template
+// CLASS implemented: LinkedSeq
+// NOTE:
+// 	Since LinkedSeq is a template class, this file is included in nodeT.h.
+// INVARIANT for the LinkedSeq class:
+// 	1. The number of items in the linked list sequence is the member variable many_nodes.
+//	2. The items in the sequence are stored on a linked list.
+// 	3. The head pointer of the list is stored in the member variable head_ptr.
+// 	4. The linked list can be traversed using the member variable cursor.
+
+
+#include <iostream>
+#include <algorithm>
+#include <cassert>
+#include "nodeT.h"
+
+namespace ntcage_main_1
+{
+	template <class Item>
+	LinkedSeq<Item>::LinkedSeq()
+	{
+		head_ptr = NULL;
+		tail_ptr = NULL;
+		cursor = NULL;
+		precursor = NULL;
+		many_nodes = 0;
+	}
+		
+	template <class Item>
+	LinkedSeq<Item>::LinkedSeq(const LinkedSeq<Item>& source)
+	{
+		node<Item>* tail_ptr; // needed for argument to list_copy
+
+		list_copy(source.head_ptr, head_ptr, tail_ptr);
+		many_nodes = source.many_nodes;
+		cursor = NULL;
+	}
+
+	template <class Item>
+	LinkedSeq<Item>::~LinkedSeq()
+	{
+		list_clear(head_ptr);
+		many_nodes = 0;
+	}
+
+	template <class Item>
+	void LinkedSeq<Item>::operator=(const LinkedSeq<Item>& source)
+	{
+		node<Item>* tail_ptr;
+
+		if(this == &source)
+			return;
+
+		list_clear(head_ptr);
+		many_nodes = 0;
+		list_copy(source.head_ptr, head_ptr, tail_ptr);
+		many_nodes = source.many_nodes;
+	}
+
+	
+	template <class Item>
+	void LinkedSeq<Item>::advance()
+	{
+		assert(is_item());
+		
+		cursor = cursor->link();
+	}
+	
+	template <class Item>
+	void LinkedSeq<Item>::erase_first()
+	{
+		list_head_remove(head_ptr);
+		--many_nodes;
+		return;
+	}
+
+	template <class Item>
+	void LinkedSeq<Item>::erase_last()
+	{
+		if (head_ptr == NULL)            // Empty list
+			cout << "Can't delete from empty list!" << endl;
+			else
+			{
+				node<Item> *rm_ptr;
+				cursor = head_ptr;
+				rm_ptr = cursor; 
+				while(cursor != NULL)
+				{
+					cursor = cursor->link();	
+				}
+				
+				list_remove(rm_ptr->link());
+				--many_nodes;
+				return;
+			}
+	}
+	
+	template <class Item>
+	void LinkedSeq<Item>::erase_from(const Item& target)
+	{
+		node<Item>* target_ptr;
+
+		target_ptr = list_search(head_ptr, target);
+		while(target_ptr != NULL)
+		{
+			target_ptr->set_data(head_ptr->data());
+			target_ptr = target_ptr->link();
+			target_ptr = list_search(target_ptr, target);
+			list_head_remove(head_ptr);
+			--many_nodes;
+		}
+		delete target_ptr;
+		return;
+	}
+/*
+	template <class Item>
+	void LinkedSeq<Item>::erase_occurance(const Item& target)
+	{
+		node<Item>* target_ptr;
+
+		target_ptr = list_search(head_ptr, target);
+		while(target_ptr != NULL)
+		{
+			target_ptr->set_data(head_ptr->data());
+			target_ptr = target_ptr->link();
+			target_ptr = list_search(target_ptr, target);
+			list_head_remove(head_ptr);
+			--many_nodes;
+		}
+		delete target_ptr;
+		return;
+		
+	}
+*/	
+	template <class Item>
+	void LinkedSeq<Item>::insert(const Item& entry)
+	{
+		node<Item> *ins_ptr;
+		cursor = head_ptr;
+		ins_ptr = cursor; 
+		while(cursor != NULL)
+		{
+			cursor = cursor->link();	
+		}
+		list_insert(ins_ptr, entry);
+		++many_nodes;
+		
+	}
+
+	template <class Item>
+	void LinkedSeq<Item>::insert_first(const Item& entry)
+	{
+		list_head_insert(head_ptr, entry);
+		++many_nodes;
+	}
+
+	template <class Item>
+	void LinkedSeq<Item>::insert_at(const Item& position, const Item& entry)
+	{
+		if (position > size()) 
+		{
+			std::cout << "Position indicated exceeds list size" << std::endl;
+		}
+		else if (position == 1) 
+		{
+			list_head_insert(head_ptr, entry);
+		}
+		else 
+		{
+			cursor = head_ptr;
+			int i = 1;
+			while (i != position) 
+			{
+				precursor = cursor;
+				cursor = cursor->link();
+				i++;
+			}
+
+			node<Item> *new_item;
+			cursor = new_item->link();
+			Item& n = new_item->data();
+			n = entry;
+			new_item = precursor->link();
+
+		}
+	}
+
+	template <class Item>
+	typename LinkedSeq<Item>::size_type LinkedSeq<Item>::count(const Item& target) const
+	{
+		size_type answer = 0;
+		const node<Item>* cursor = list_search(head_ptr, target);
+		while(cursor != NULL)
+		{
+			++answer;
+			cursor = cursor->link();
+			cursor= list_search(cursor, target);
+		}
+		return answer;
+	}
+
+	template <class Item>
+	Item LinkedSeq<Item>::grab() const
+	{
+		size_type i;
+		const node<Item>* cursor;
+
+		assert(size() > 0);
+		i = (std::rand() % size()) + 1;
+		cursor = list_locate(head_ptr, i);
+		return cursor->data();
+	}
+
+	template <class Item>
+	std::ostream& operator<<(ostream& output, const LinkedSeq<Item>& list)
+		{
+			LinkedSeq<Item> *cursor = list.head_ptr;
+			while(cursor != NULL)
+			{
+				output << cursor->data;
+				cursor = cursor->link();
+			}
+
+			return output;
+		}
+		
+	template <class Item>
+	void LinkedSeq<Item>::operator+=(const LinkedSeq& addend)
+	{
+		node<Item> *copy_head_ptr;
+		node<Item> *copy_tail_ptr;
+
+		if(addend.many_nodes > 0)
+		{
+			list_copy(addend.head_ptr, copy_head_ptr, copy_tail_ptr);
+			copy_tail_ptr->set_next(head_ptr);
+			head_ptr = copy_head_ptr;
+			many_nodes += addend.many_nodes;
+		}
+
+	}
+
+	template <class Item>
+	LinkedSeq<Item> operator+(const LinkedSeq<Item>& b1, const LinkedSeq<Item>& b2)
+	{
+		LinkedSeq<Item> answer;
+
+		answer += b1;
+		answer += b2;
+		return answer;
+	}
+}

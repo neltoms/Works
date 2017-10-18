@@ -1,0 +1,27 @@
+// FILE: Deque.template
+
+#include <cassert>
+
+namespace ntcage_main_1
+{
+	template <typename T>
+	void Deque<T>::pop_back()
+	{
+		assert(back_ptr != NULL)
+
+		if(back_bp == *front_bp)
+		{ clear; }
+		else if(back_bp == *last_bp)
+		{
+			delete [] back_ptr;
+			--last_bp;
+			back_ptr = (*last_bp) + (BLOCK_SIZE -1);
+		}
+		else
+		{
+			--back_ptr;
+		}
+	}
+
+
+}

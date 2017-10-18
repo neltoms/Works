@@ -1,0 +1,268 @@
+// FILE: hash_table.template
+// INVARIANT for the HashTable class:
+// 		1. The number of records in the table is in the member variable used.
+// 		2. The actual records of the table are stored in the array data, with a maximum of
+// 		   CAPACITY entries. Each used spot in the array has a non-negative key. Any unused
+// 		   record in the array has a key field of NEVER_USED (if it has never been used) or
+// 		   PREVIOUSLY_USED (if it once was used, but is now vacant).
+
+#include <cassert>
+#include <cstdlib>
+
+
+namespace ntcage_main_1
+{
+	template <typename T>
+	HashTable<T>::HashTable()
+	{
+		bucket = new LinkedHash<T>*[SIZE];
+		for(int i = 0; i < SIZE; ++i)
+			bucket[i] = NULL;
+	}
+	
+	template <typename T>
+	HashTable<T>::~HashTable()
+	{
+		for(int i = 0; i < SIZE; ++i)
+		{
+			LinkedHash<T>* entry = bucket[i];
+			while(entry != NULL)
+			{
+				LinkedHash<T>* prev = entry;
+				entry = entry->next;
+				delete prev;
+			}
+			delete [] bucket;
+		}
+	}
+	
+	template <typename T>
+	void HashTable<T>::insert_hash(size_type key, T value)
+	{
+		size_type hash = hash_func(key);
+	
+		if (many_nodes < 8)
+		{
+			if(bucket[hash] == NULL)
+			{
+				bucket[hash] = new LinkedHash<T>(key, value);
+			}
+			else
+			{
+				LinkedHash<T>* entry = bucket[hash];
+				while(entry != NULL)
+				{
+					entry = entry->next;
+				}
+				entry = new LinkedHash<T>(key, value);
+			}
+		}
+
+		if (many_nodes > 8)
+		{ 	
+			size_type index;
+			index = hash_func(key);
+
+			if (b_bucket[index] == NULL)
+			{
+				b_bucket[index] = insert(value);
+			}
+			else
+			{
+				binary_tree_node<T>* entry = b_bucket[index];
+				while(entry != NULL)
+				{
+					entry = entry->next;
+				}
+				entry = new binary_tree_node<T>(value);
+			}
+		}
+		++many_nodes;
+	}
+
+	template <typename T>
+	void HashTable<T>::find_index(size_type key, bool& found, size_type& i) const
+	{
+		size_type count = 0;
+		i = hash_func(key);
+		while((count < SIZE) && (bucket[i]->key != key))
+		{
+			++count;
+			++i;
+		}
+		found = (bucket[i]->key == key);
+	}
+
+	template <typename T>
+	void HashTable<T>::remove(size_type key)
+	{
+		bool found;
+		size_type index;
+
+		find_index(key, found, index);
+		if(found)
+			delete bucket[key];
+		EXIT_SUCCESS;
+
+	}
+
+	template <typename T>
+	typename HashTable<T>::size_type HashTable<T>::find(const T& key) const
+	{
+		size_type hash = hash_func(key);
+		if (bucket[hash] == NULL)
+			return -1;
+		else
+		{
+			LinkedHash<T>* entry = bucket[hash];
+			while(entry != NULL && entry->key != key)
+				entry = entry->next;
+			if(entry == NULL)
+				return -1;
+			else
+				return entry->value;
+
+		}
+	}
+
+	template <typename T>
+	void HashTable<T>::print_list()
+	{
+		for (std::size_t i = 0; i < SIZE; ++i)
+		{
+			std::cout << "[" << i << "]";
+			if(bucket[i] == NULL)
+			{
+				binary_tree_node<T>* node_ptr = b_bucket[i];
+				print_tree(node_ptr);
+			}
+		}
+	}
+
+	template <typename T>
+	void HashTable<T>::print_tree(binary_tree_node<T>* node_ptr)
+	{
+		if(node_ptr != NULL)
+		{
+			print_tree(node_ptr->left());
+			std::cout << node_ptr->data() << std::endl;
+			print_tree(node_ptr->right());
+		}
+	}
+	
+
+}
+
+
+/*
+
+#include <cassert> 
+#include <cstdlib>
+
+namespace ntcage_main_1
+{
+	template <typename t>
+	static const Table::std::size_t Table<T>::CAPACITY;
+	template <typename T>
+	const int Table<T>::NEVER_USED;
+	template <typename T>
+	const int Table<T>::PREVIOUSLY_USED;
+
+	template <typename T>
+	Table<T>::Table()
+	{
+		root_ptr = NULL;
+		vaule = 0;
+		key = 0;
+		used = 0;
+		for(std::size_t i = 0; i < CAPACITY; ++i)
+			data[i].key = NEVER_USED;
+	}
+
+	template <typename T>
+	void Table<T>::insert(const T& entry)
+	{
+		bool already_present;
+		std::size_t index;
+
+		assert(entry.key >=0);
+
+		if(!already_present)
+		{
+			assert(size() < CAPACITY);
+			index = hash(entry.key);
+			while(!is_vacant(index))
+
+			++used;
+		}
+		data[index] = entry;
+	}
+
+	template <typename T>
+	void Table<T>::remove(int key)
+	{
+		bool found; 	// true if key occurs somewhere in the table
+		std::size_t index; // spot where data[index].key == key
+
+		assert(key >= 0);
+
+		find_index(key, found, index);
+		if(found)
+		{
+			data[index].key = PREVIOUSLY_USED;
+			--used;
+		}
+	}
+
+*********************************************************
+	std::size_t hashkey(const sting& s)
+	{
+		std::size_t result = 0;
+
+		for(std::size_t i = 0; i < s.length(); ++i)
+			result = result + static
+	}
+
+	template <typename T>
+	bool Table<T>::is_present(std::size_t key) const
+	{
+		std::size_t i = hash(key);
+		dbl_node<T>::const_dbl_node_iterator it;
+
+		for(it = data[i].begin(); it != data[i].end(); ++it)
+		{
+			if (hashkey(*it) == key)
+				return true;
+		}
+		return false;
+		
+	}
+**********************************************************
+
+	template <typename T>
+	inline std::size_t Table<T>::hash(std::size_t key) const
+	{ return (key % CAPACITY); }
+
+	template <typename T>
+	inline std::size_t Table<T>::next_index(std::size_t index) const
+	{ return ((index+1) % CAPACITY);}
+
+	template <typename T>
+	void Table<T>::find_index(std::size_t key, bool& found, std::size_t& i) const
+	{
+		std::size_t count = 0;
+		i = hash(key);
+		while((count < CAPACITY) && (!never_used(i)) && (data[i].key != key))
+		{
+			++count;
+			i = next_index(i);
+		}
+		found = (data[i].key == key);
+	}
+
+
+}
+
+*/
+
+

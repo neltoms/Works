@@ -1,0 +1,54 @@
+// FILE: Stack2.template
+
+#include "node2.h"
+
+namespace ntcage_main_1
+{
+	template <typename T>
+	Stack2<T>::Stack2(const Stack2& source)
+	{
+		dbl_node<T> *tail_ptr;
+		list_copy(source.top_ptr, top_ptr, tail_ptr);
+	}
+
+	template <typename T>
+	void Stack2<T>::push(const T& entry)
+	{
+		list_head_insert(top_ptr, entry);
+	}
+
+	template <typename T>
+	void Stack2<T>::pop()
+	{
+		assert(!empty());
+		list_head_remove(top_ptr);
+	}
+
+	template <typename T>
+	void Stack2<T>::operator=(const Stack2& source)
+	{
+		dbl_node<T> *tail_ptr;
+		
+		if (this == &source)
+			return;
+
+		list_clear(top_ptr);
+		list_copy(source.top_ptr, top_ptr, tail_ptr);
+	}
+
+	template <typename T>
+	T Stack2<T>::top() const
+	{
+		assert(!empty());
+		return top_ptr->data();
+	}
+
+	template <typename T>
+	T Stack2<T>::second() const
+	{
+		assert(size() >= 2);
+		return top_ptr->link()->data();
+	}
+
+	
+}
