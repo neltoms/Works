@@ -121,7 +121,7 @@ namespace ntcage_main_1
 		ins_ptr = cursor; 
 		while(cursor != NULL)
 		{
-			cursor = cursor->link();	
+			cursor = cursor->next();	
 		}
 		list_insert(ins_ptr, entry);
 		++many_nodes;	
@@ -152,16 +152,17 @@ namespace ntcage_main_1
 			while (i != position) 
 			{
 				precursor = cursor;
-				cursor = cursor->link();
+				cursor = cursor->next();
 				i++;
 			}
 
-			dbl_node<Item> *new_item;
-			cursor = new_item->link();
+			insert(entry);
+		/*	dbl_node<Item> *new_item;
+			cursor = new_item->next();
 			Item& n = new_item->data();
 			n = entry;
-			new_item = precursor->link();
-
+			new_item = precursor->next();
+		*/
 		}
 	}
 	

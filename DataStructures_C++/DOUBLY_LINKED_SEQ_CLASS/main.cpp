@@ -20,6 +20,8 @@ int main()
 	n.insert_first(3);
 	n.insert_first(4);
 
+	n.insert_at(2, 7);
+
 
 	dbl_node_iterator<int> it;
 
