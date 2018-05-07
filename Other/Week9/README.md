@@ -14,5 +14,3 @@
 ## Any unresolved questions raised by the data collected
  - No
 
-## Data
- - <a href="https://github.com/MohamedSondo/WebSecurity/blob/master/Week9/session.json"> LOGS </a>
